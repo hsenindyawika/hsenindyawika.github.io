@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencarian Master Dokumen</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --card:#ffffff;
+    --accent:#1d4ed8;
+    --accent-soft:#e0e7ff;
+    --text:#1e293b;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --green:#16a34a;
+    --green-soft:#dcfce7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);
+    min-height:100vh;
+    padding:24px 16px 40px;
+    color:var(--text);
+  }
+  .wrap{max-width:900px;margin:0 auto;}
+  header{
+    text-align:center;
+    color:#fff;
+    margin-bottom:24px;
+  }
+  header h1{
+    font-size:1.6rem;
+    margin:0 0 4px;
+    font-weight:700;
+  }
+  header p{
+    margin:0;
+    color:#cbd5e1;
+    font-size:0.9rem;
+  }
+  .search-box{
+    background:var(--card);
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    margin-bottom:20px;
+  }
+  .search-input{
+    width:100%;
+    padding:14px 16px;
+    font-size:1rem;
+    border:2px solid var(--border);
+    border-radius:10px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .search-input:focus{border-color:var(--accent);}
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  .filter-btn{
+    border:1px solid var(--border);
+    background:#f8fafc;
+    color:var(--muted);
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:0.82rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .filter-btn.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  .stats{
+    color:#e2e8f0;
+    font-size:0.85rem;
+    margin-bottom:12px;
+    padding-left:4px;
+  }
+  .results{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .result-card{
+    background:var(--card);
+    border-radius:12px;
+    padding:14px 16px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    border-left:4px solid var(--accent);
+    animation:fadeIn .2s ease;
+    transition:box-shadow .15s, transform .15s;
+  }
+  .result-card:hover{
+    box-shadow:0 4px 16px rgba(0,0,0,0.14);
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .result-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .kode{
+    font-family:'Consolas',monospace;
+    font-weight:700;
+    color:var(--accent);
+    font-size:0.95rem;
+    word-break:break-word;
+  }
+  .kategori-tag{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-size:0.7rem;
+    font-weight:600;
+    padding:3px 10px;
+    border-radius:12px;
+    white-space:nowrap;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+  }
+  .judul{
+    margin-top:6px;
+    font-size:0.92rem;
+    color:var(--text);
+    line-height:1.4;
+  }
+  .card-bottom{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:10px;
+  }
+  .open-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--green-soft);
+    color:var(--green);
+    font-weight:600;
+    font-size:0.82rem;
+    padding:7px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    transition:background .15s;
+  }
+  .open-btn:hover{
+    background:#bbf7d0;
+  }
+  .no-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#f1f5f9;
+    color:var(--muted);
+    font-size:0.8rem;
+    padding:7px 14px;
+    border-radius:8px;
+  }
+  mark{
+    background:#fef08a;
+    padding:0 2px;
+    border-radius:3px;
+  }
+  .empty{
+    text-align:center;
+    color:#cbd5e1;
+    padding:40px 20px;
+    font-size:0.95rem;
+  }
+  .empty-icon{font-size:2.2rem;margin-bottom:8px;}
+  footer{
+    text-align:center;
+    color:#94a3b8;
+    font-size:0.78rem;
+    margin-top:30px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.1);
+  }
+  footer .brand{
+    margin-top:6px;
+    color:#cbd5e1;
+    font-size:0.75rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔍 Pencarian Dokumen HSE KSO NINDYA-WIKA</h1>
+    <p>Cari berdasarkan nomor dokumen atau judul — EPC PROJECT WATERFLOOD LAPANGAN SINTONG</p>
+  </header>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="Ketik nomor dokumen atau judul... (mis. HIRADC, P-PRYK-HSE, FM-EXTRL-01)" autofocus>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="results" id="results"></div>
+
+  <footer>
+    Total dokumen tersimpan: <span id="totalCount"></span> — dari 5 kategori
+    <div class="brand">© 2026 Muhammad Akbar Al Bardawi.</div>
+  </footer>
+</div>
+
+<script>
+const DATA = {"prosedur": {"header": ["NO.", "NO PROSEDUR", "JUDUL PROSEDUR", null], "items": [{"no": 1, "kode": "P-PRYK-HSE-03-02", "judul": "Prosedur Inspeksi HSSE", "link": "https://drive.google.com/uc?export=download&id=1BPkkQ7HTyq0xo4a7wG37Lea7D1xYp6Kz"}, {"no": 2, "kode": "P-PRYK-HSE-07-14", "judul": "Prosedur Kampanye HSSE", "link": "https://drive.google.com/uc?export=download&id=1WDTqUYcOCRiqj2FSVo6ij_mORrvl5qzV"}, {"no": 3, "kode": "P-PRYK-HSE-04-02", "judul": "Prosedur Penghargaan dan Sanksi HSSE", "link": "https://drive.google.com/uc?export=download&id=13ghy26-MiJrNGmy3VnjX8qNPHp-zRbrf"}, {"no": 4, "kode": "P-PRYK-HSE-05-03", "judul": "Prosedur Kebijakan HSSE", "link": "https://drive.google.com/uc?export=download&id=1nurbv82zibt33xeiuBK2T6ft-ZJO5CEO"}, {"no": 5, "kode": "P-PRYK-HSE-05-04", "judul": "Prosedur Objective, Target, Program HSSE", "link": "https://drive.google.com/uc?export=download&id=1M4z3SFV0OJqTHjU6YFl4-Ohx2x7CdrRs"}, {"no": 6, "kode": "P-PRYK-HSE-05-02", "judul": "Prosedur HSSE Plan dan HSSE Performance Indicator", "link": "https://drive.google.com/uc?export=download&id=1jQ_yk4FT2yDVNDWfYXQ7pTqXQrHw9PvO"}, {"no": 7, "kode": "P-PRYK-HSE-07-10", "judul": "Prosedur Komunikasi, Konsultasi, dan Partisipasi HSSE", "link": "https://drive.google.com/uc?export=download&id=1n2plAKGYHmcjZAXRnvYMfNNg4SLGTd8C"}, {"no": 8, "kode": "P-NK-SIS-01.1", "judul": "ProsedurPengendalian Informasi Terdokumentasi", "link": "https://drive.google.com/uc?export=download&id=1KCGwg1NIGRDRhR-CsHR8Q_Nc5nK1WXUa"}, {"no": 9, "kode": "P-NK-SCM-02.07", "judul": "Prosedur CSMS Sub-Kontraktor", "link": "https://drive.google.com/uc?export=download&id=1fV_sQNW6IjwbDUQb1RPUidBV6rkQhi-T"}, {"no": 10, "kode": "P-PRYK-HSE- 02-03", "judul": "Prosedur Identifikasi Penaatan Peraturan Perundangan & Persyaratan HSE", "link": "https://drive.google.com/uc?export=download&id=199bRseJRL1uubDEpgp3WYio-KAZ-bwK-"}, {"no": 11, "kode": "P-PRYK-HSE-01-01", "judul": "Prosedur HIRADC", "link": "https://drive.google.com/uc?export=download&id=1kHPOmoD-63zXK-LwKR9xzo7wBg1V-oes"}, {"no": 12, "kode": "P-PRYK-HSE-07-01", "judul": "Prosedur Job Safety Analysis (JSA)", "link": "https://drive.google.com/uc?export=download&id=1j5pu2lvRAJJmE-sP5IK9Bv0ml3E2qUEF"}, {"no": 13, "kode": "P-PRYK-HSE-07-09", "judul": "Prosedur Housekeeping Di Area Proyek", "link": "https://drive.google.com/uc?export=download&id=1uTq8AZbACryIspe0X2wXkFC8x9oFAiZi"}, {"no": 14, "kode": "P-PRYK-HSE-07-11", "judul": "Prosedur Pengukuran Lingkungan Kerja dan Lingkungan Hidup", "link": "https://drive.google.com/uc?export=download&id=1mEcSOEpkVFsoFh7TNyDNotE0uSq9Yd20"}, {"no": 15, "kode": "P-PRYK-HSE-05-06", "judul": "Prosedur Pengelolaann Logistik", "link": "https://drive.google.com/uc?export=download&id=1I2jRP6dGpW4zmFS_nahI4dKxL5FLNOll"}, {"no": 16, "kode": "P-PRYK-HSE-05-07", "judul": "Prosedur Pengelolaan Lingkungan", "link": "https://drive.google.com/uc?export=download&id=13LGSUoNxvxqRa4eOmRNm1SRGxK78dJdP"}, {"no": 17, "kode": "P-PRYK-HSE-05-08", "judul": "Prosedur Pengelolaan Keamanan", "link": "https://drive.google.com/uc?export=download&id=1AAfNGp54aFpwNzhjZw9IkhAJlO4HAmQF"}, {"no": 18, "kode": "P-PRYK-HSE-07-04", "judul": "Prosedur Alat Pelindung Diri", "link": "https://drive.google.com/uc?export=download&id=13y20avPrd3jdJKxLs7d_KaTULgwnQ3xu"}, {"no": 19, "kode": "P-PRYK-HSE-03-03", "judul": "Prosedur Inspeksi Peralatan Kerja", "link": "https://drive.google.com/uc?export=download&id=1vriFt_c1-_M9ED8ahwJaGv81Hw3fGOWi"}, {"no": 20, "kode": "P-NK-HSE-12.01", "judul": "Prosedur Management of Change (MOC)", "link": "https://drive.google.com/uc?export=download&id=1S-qCPGV_kwU-Qvyj6TwDXJL4qE00Dk05"}, {"no": 21, "kode": "P-PRYK-HSE-02-01", "judul": "Prosedur Rencana Tanggap Darurat", "link": "https://drive.google.com/uc?export=download&id=1zJaLuQnDhIxwfOGi5U0OwcNADjgmKIs4"}, {"no": 22, "kode": "P-PRYK-HSE-08-01", "judul": "Prosedur Pelaporan dan Evaluasi Kinerja HSSE", "link": "https://drive.google.com/uc?export=download&id=1ZGxLg1l913lQ-Qeb4p3AyxmzMpj73uZH"}, {"no": 23, "kode": "P-PRYK-HSE-03-1", "judul": "Prosedur Investigasi dan Pelaporan Kecelakaan Kerja", "link": "https://drive.google.com/uc?export=download&id=1tPZgvE3Kh3cP3ooClKdJOiVLAbThLrxU"}, {"no": 24, "kode": "P-NK-SIS-04.1", "judul": "Prosedur Pelaksanaan Tinjauan Manajemen", "link": "https://drive.google.com/uc?export=download&id=1vJueGz2RYi9me3rbBMIMxHa5FKDVSsbN"}, {"no": 25, "kode": "P-PRYK-HSE-01-2", "judul": "Prosedur Laporan Sumber Bahaya", "link": "https://drive.google.com/uc?export=download&id=164Ei84gEXeAB3XREePAM2V4Cwe_tq0c2"}, {"no": 26, "kode": "P-PRYK-HSE-04-1", "judul": "Prosedur Kegiatan dan Pelaporan P2K3", "link": "https://drive.google.com/uc?export=download&id=18UU98xKxNjih1O_-Ogm2BNbUjpts7dmB"}, {"no": 27, "kode": "P-PRYK-HSE-05-05", "judul": "Prosedur Keselamatan Kerja", "link": "https://drive.google.com/uc?export=download&id=1zawrPsKPnDMqILPuNZSyHeSb48damKa5"}, {"no": 28, "kode": "P-PRYK-HSE-07-03", "judul": "Prosedur Menghentikan Pekerjaan", "link": "https://drive.google.com/uc?export=download&id=1nXW-HYU0p-mbZ7rDPPl1c-t1-eukduOx"}, {"no": 29, "kode": "P-PRYK-HSE-07-05", "judul": "Prosedur Lock Out Tag Out", "link": "https://drive.google.com/uc?export=download&id=19l05WyXD1bCDiHpaCllGHhQRtSVHWPVq"}, {"no": 30, "kode": "P-PRYK-HSE-07-07", "judul": "Prosedur Penanganan Bahan Berbahaya dan Beracun (B3) dan Non B3 ", "link": "https://drive.google.com/uc?export=download&id=14NmXNE9Dykq46njIEGnUUTL0S7y3mzl8"}, {"no": 31, "kode": "P-PRYK-HSE-07-10", "judul": "SO proyek dan Personil Inti WFLS Struktur organisasi personal inti", "link": "https://drive.google.com/uc?export=download&id=1GoUgz3dooJYMqpxEH1SrwC14lt_yL8LI"}, {"no": 32, "kode": "P-PRYK-HSE-07-12", "judul": "Prosedur HSSE Induction", "link": "https://drive.google.com/uc?export=download&id=1oD9FDEx6YTi8XROB5-44sfcJx5I_ozpj"}, {"no": 33, "kode": "P-PRYK-HSE-07-13", "judul": "Prosedur Papan Informasi HSSE", "link": "https://drive.google.com/uc?export=download&id=1dr_SvjtvGNl2cmAhTDRRuHqoAQSIhT8C"}, {"no": 34, "kode": "P-PRYK-HSE-07-15", "judul": "Prosedur Daily Toolbox Talk & Weekly Toolbox Meeting", "link": "https://drive.google.com/uc?export=download&id=1bu9T2LQHOTBTWhL5vsDB9T4Jedld45y8"}, {"no": 35, "kode": "P- PRYK-HSE-08-04", "judul": "Prosedur SSE (Program untuk Karyawan Berpengalaman Kerja Pendek)", "link": "https://drive.google.com/uc?export=download&id=1sTU4uqxDGTF9xuYzGhsanM6ZaeXMMlCO"}, {"no": 36, "kode": "P-PRYK-HSE-08-2", "judul": "Prosedur Pelaksanaan Rapat HSSE", "link": "https://drive.google.com/uc?export=download&id=1U9-Zyb5dzJrHmI7kahy0J_0S3cgAn-Y2"}, {"no": 37, "kode": "P-PRYK-HSE-08-03", "judul": "Prosedur Road Hazard Assessnent", "link": "https://drive.google.com/uc?export=download&id=140Dt95Po0WbR11VJl6VQpQq9rHeZCVVh"}, {"no": 38, "kode": "P-NK-TJSL-02-02", "judul": "Prosedur Pengelolaan Aspek Sosial", "link": "https://drive.google.com/uc?export=download&id=1avM_qGQ37JxNUb1NbqobrirvcdQ7xRhK"}, {"no": 39, "kode": "P-NK-SCM-02-8", "judul": "Prosedur Penilaian Kinerja CSMS Sub-Kontraktor", "link": "https://drive.google.com/uc?export=download&id=1PDiFI4BfwEBXZO17onPS29yzxH6pCI-3"}, {"no": 40, "kode": "P-NK-SIS-05-1", "judul": "Prosedur Audit Internal Terintegrasi", "link": "https://drive.google.com/uc?export=download&id=1rQ3XpUaHoVs2wdVDVvR1kU4burW12N7T"}, {"no": 41, "kode": "P-NK-HC-09-5", "judul": "Prosedur Medical Check Up (MCU)", "link": "https://drive.google.com/uc?export=download&id=18jCpUTuMZBnp_QAJtMCuWBxE5nqzhEWH"}, {"no": 42, "kode": "P-NK-HSE-07-12", "judul": "Prosedur Fit To Work (DCU)", "link": "https://drive.google.com/uc?export=download&id=18WPW71wRUqJ3iMPhBOygxLcUpIsmd7qN"}, {"no": 43, "kode": "P-NK-SDM-04-1", "judul": "Prosesdur Sumber Daya Manusia Pelatihan SDM", "link": "https://drive.google.com/uc?export=download&id=1jTtWGYziiwqXmguy344rswVPnsvdJPFO"}, {"no": 44, "kode": "IK-PRYK-HSE-02-01-01", "judul": "Petugas Pemadam Kebakaran & APAR (Alat Pemadam Api Ringan)", "link": "https://drive.google.com/uc?export=download&id=1HZ0pKkCDeP392HA9p38tzGV2FYhr1DNr"}, {"no": 45, "kode": "IK-PRYK-HSE-04-01-01", "judul": "Petugas & Kegiatan P3K (Pertolongan Pertama Pada Kecelakaan)", "link": "https://drive.google.com/uc?export=download&id=1_4ga5oX0MFUI9oVwz6Ya1gWOlg1odYBA"}, {"no": 46, "kode": "P-PRYK-HSE-07-06", "judul": "Operasi Pengangkatan ", "link": "https://drive.google.com/uc?export=download&id=107kfJo5jp7i8KlxPPKC3qPjVpBZfY0IA"}, {"no": 47, "kode": "IK-PRYK-HSE-07-08", "judul": "Pengelolaan TPS Limbah B3", "link": "https://drive.google.com/uc?export=download&id=1QQz9bQeJSMltuKsc9zyzQnvIiUCCjjp_"}, {"no": 48, "kode": "WLS-STG-HES-RMP-001", "judul": "HIRADC - Identifikasi dan Evaluasi Risiko Operasional Lokasi Kerja HSE", "link": "https://drive.google.com/uc?export=download&id=13bWPyftiYfXnLLRxyNVAqT56Le1tB5oN"}, {"no": 49, "kode": "SLON-GATHSTNG000-OPS-PCD-PHR-2047-00 ", "judul": "HSSE PLAN", "link": "https://drive.google.com/uc?export=download&id=1Ufb7b2wGMZhz6LLHXSG1rrR4ONg1IPUm"}, {"no": 50, "kode": "SLON-GATHSTNG000-OPS-PCD-PHR-2049-00 ", "judul": "KEY PERFORMANCE INDICATOR", "link": "https://drive.google.com/uc?export=download&id=1aDZc2vANGJpytpSgib3h5ct1RoLJ4G3a"}, {"no": 51, "kode": "SLON-GATHSTNG000-OPS-PCD-PHR-2050-00 ", "judul": "PEDOMAN SMK3LI", "link": "https://drive.google.com/uc?export=download&id=1t4Z4oWoan7KcS1fP30zxsrRgljR1e5bP"}, {"no": 52, "kode": "SLON-GATHSTNG000-OPS-PCD-PHR-2052-00 ", "judul": "INCIDENT REPORTING SYSTEM", "link": "https://drive.google.com/uc?export=download&id=1lhQyJGom25hC1qad0a9uo7L-FTJUPhmu"}, {"no": 53, "kode": "SLON-GATHSTNG000-OPS-PCD-PHR-2048-00", "judul": "SPECIFIC EMERGENCY RESPONSE", "link": "https://drive.google.com/uc?export=download&id=1xSs1INWQeaIYjAG_EIqkOFqSixPbzqN6"}]}, "checklist external": {"header": ["NO.", "NO CHECKLIST", "CHECKLIST EXTERNAL", null], "items": [{"no": 1, "kode": "FM-EXTRL-01", "judul": "CHECKLIST FORM FATIGUE MANAGEMENT", "link": "https://drive.google.com/uc?export=download&id=1FCrNYmjfjlp5i4f6cIy6WNHhbQ9-NI3a"}, {"no": 2, "kode": "FM-EXTRL-02", "judul": "PTI KENDARAAN RINGAN", "link": "https://drive.google.com/uc?export=download&id=160LPeZdnwA6MZfSGo-1X69u4TTs51_ph"}, {"no": 3, "kode": "FM-EXTRL-03", "judul": "PTI BACKHOE LOADER WHEEL", "link": "https://drive.google.com/uc?export=download&id=1YQKy2gAfmwOe-KjG9e-gegwjm9XLZy1A"}, {"no": 4, "kode": "FM-EXTRL-04", "judul": "PTI WHEEL LOADER", "link": "https://drive.google.com/uc?export=download&id=1XoZ4dzogEt9A4SD-14OImblXgExeiNQH"}, {"no": 5, "kode": "FM-EXTRL-05", "judul": "PTI BULLDOZER", "link": "https://drive.google.com/uc?export=download&id=132r24W7f15NDymbwJ68St07zrY05ZoMK"}, {"no": 6, "kode": "FM-EXTRL-06", "judul": "PTI COMPACTOR", "link": "https://drive.google.com/uc?export=download&id=1wKZBcX8tKQKQSkYmw_LmaLHJev3Wl5Gt"}, {"no": 7, "kode": "FM-EXTRL-07", "judul": "PTI MOTOR GRADER", "link": "https://drive.google.com/uc?export=download&id=1LzGlX_S4xUDXkiar37-sR5aDWIoQG-Rb"}, {"no": 8, "kode": "FM-EXTRL-08", "judul": "PTI EXCAVATOR TRACK", "link": "https://drive.google.com/uc?export=download&id=1jH8iY7SqKhK-PYlz4hvmJEFnmDnK1ipS"}, {"no": 9, "kode": "FM-EXTRL-09", "judul": "PTI EXCAVATOR AMPHIBIOUS", "link": "https://drive.google.com/uc?export=download&id=1eHRGLHGlrK47E29bE5g-R6eFz60TN3Tj"}, {"no": 10, "kode": "FM-EXTRL-10", "judul": "PTI CRAWLER CRANE", "link": "https://drive.google.com/uc?export=download&id=19gD6WGe29MrsUZyoQP9RKJdDfoZg3MAb"}, {"no": 11, "kode": "FM-EXTRL-11", "judul": "PTI TMC", "link": "https://drive.google.com/uc?export=download&id=1Y5hLNBBIR79duYWcdiQvhx3-WdUjBCrj"}, {"no": 12, "kode": "FM-EXTRL-12", "judul": "PTI FORK LIFT", "link": "https://drive.google.com/uc?export=download&id=1BnAi2wYQHBHw7dvRNzgmC4wX5BqLT3hc"}, {"no": 13, "kode": "FM-EXTRL-13", "judul": "PTI WELDING MACHINE", "link": "https://drive.google.com/uc?export=download&id=1Y4Y43b4JuMlzrFqyESKrbGZscWpWuwLC"}, {"no": 14, "kode": "FM-EXTRL-14", "judul": "PTI RECYCLING MACHINE", "link": "https://drive.google.com/uc?export=download&id=1s25X7NwHN7MC5Udj0YP3sn7L_atXTtff"}]}, "TKO-TKI": {"header": ["NO.", "NO DOKUMEN", "TKO-TKI", null], "items": [{"no": 1, "kode": "B08-006-PHR85320-2024-S9", "judul": "TKO Pengendalian dan Penataan Access Control Area Kerja Facility Engineering", "link": "https://drive.google.com/uc?export=download&id=1y2ZZavhDYLtu2Y02LdQ3GtyFUGypRcXE"}, {"no": 2, "kode": "B04-002-PHR85410-2022-S9", "judul": "TKO Penggantian Shift (Serah Terima) Rapat Kelompok Briefing Toolbox Meeting", "link": "https://drive.google.com/uc?export=download&id=1UAtQMnMwf3DBU62n4flesXoobz0vfxxi"}, {"no": 3, "kode": "B04-005-PHR85320-2024-S9", "judul": "TKO Pengelolaan Excavator dan Backhoe Loader Sebagai Alat Angkat", "link": "https://drive.google.com/uc?export=download&id=1Q_Tb6eAxlUruYkev4BpZt1-BPS1gIB3s"}, {"no": 4, "kode": "B04-006-PHR85530-2023-S9 ", "judul": " TKO Pengelolaan Operasi Pengangkatan dan Pengikatan (Lifting and Rigging)", "link": "https://drive.google.com/uc?export=download&id=1sPhjVVOmejMD78YRou_EslLbwOk0eNzq"}, {"no": 5, "kode": "B08-001-PHR86140-2022-S9 ", "judul": "TKO Pemeriksaan Kesehatan Pekerja (Fitness For Work)", "link": "https://drive.google.com/uc?export=download&id=1KjDxFev_QdgwH3Br7ndcnPHJwZpIz2gV"}, {"no": 6, "kode": "B08-004-PHR85530-2022-S9 ", "judul": "TKO Hazard Analysis", "link": "https://drive.google.com/uc?export=download&id=1n0pBwfngmYT4dj3OfQJEsDxzX6H2sUpB"}, {"no": 7, "kode": "B08-012_PHR85530_2022-S9 ", "judul": "TKO Pengelolaan Short Service Employee (SSE)", "link": "https://drive.google.com/uc?export=download&id=1a1mbqrdU9BKTr8rbBfquWloxr2Pewfla"}, {"no": 8, "kode": "B08-015-PHR85530-2022-S9", "judul": "TKO NON LB3", "link": "https://drive.google.com/uc?export=download&id=1G7FI2jMvTv8HIXAMJGBZ9slvstNLjHoa"}, {"no": 9, "kode": "B08-022-PHR85530-2023-S9", "judul": "TKO Pengelolaan Bekerja di Ketinggian (Working At Height)", "link": "https://drive.google.com/uc?export=download&id=1zIqFs0ke2PaqM6Dw0sE4aCbUpv0R-EeX"}, {"no": 10, "kode": "B08-029-PHR85530-2024-S9", "judul": "TKO Pengelolaan Pemeliharaan dan Penggunaan Perkakas dan Peralatan (Tools Equipment)", "link": "https://drive.google.com/uc?export=download&id=1BNGMk5uFF8-j28PWF3L9yeAs4NJ_ysfa"}, {"no": 11, "kode": "B08-030-PHR85530-2023-S9", "judul": "TKO Pengelolaan Pekerjaan Panas (Hot Work)", "link": "https://drive.google.com/uc?export=download&id=15RvmWnAQjHxS0obdQ2IfWO1lyVU-bDSx"}, {"no": 12, "kode": "C04-004-PHR85320-2024-S9", "judul": "TKI Pelaksanaan Pendeteksian Fasilitas Bawah Tanah Berbahan Logam", "link": "https://drive.google.com/uc?export=download&id=1mhoLU9e-aO8C2lFxBuR2wxDib2H-1Vqn"}, {"no": 13, "kode": "B3-001-PHR87200-2025-S9", "judul": "TKO Pengelolaan Constructability Assessment di Zona Rokan", "link": "https://drive.google.com/uc?export=download&id=1jKtfMrDMGj_9o94EKRhb0JEQ3qGt7zCN"}, {"no": 14, "kode": "B8-XXX-PHR81000-2025-S9", "judul": "TKO Pengelolaan Pelatihan & Kompetensi Peran SIKA dan SWP", "link": "https://drive.google.com/uc?export=download&id=12J0wqiragL-x_W4DlrzSfX6luW6MfHdL"}]}, "STIKER": {"header": ["NO.", "NO STIKER", "NAMA STIKER", null], "items": [{"no": 1, "kode": "NKWK-S-CC-002", "judul": "APAR Inspection", "link": "https://drive.google.com/uc?export=download&id=1kFEIlFsDnh6ZmNo9o1CgedKFV77Uq4jt"}, {"no": 2, "kode": "NKWK-S-APR-001", "judul": "Color Code Tagging KSO NK-WIKA", "link": "https://drive.google.com/uc?export=download&id=16PfodKyslz781Y9hR66OQ7HLfQNDqzmq"}]}, "checklist internal": {"header": ["NO.", "NO CHECKLIST", "CHECKLIST INTERNAL", null], "items": [{"no": 1, "kode": "NKWK-INSP-EQP-003", "judul": " CHEKCLIST PTI BODY HARNESS", "link": "https://drive.google.com/uc?export=download&id=1n_MvE3UUn6lhyX4Bmpo3X5Swud3BEqml"}, {"no": 2, "kode": "NKWK-INSP-EQP-004", "judul": " CHECKLIST FORM Inspeksi Kotak P3K", "link": "https://drive.google.com/uc?export=download&id=1EL72BVQPqoFguYonaHY94u_ipl39857P"}, {"no": 3, "kode": "NKWK-INSP-EQP-005", "judul": " CHECKLIST INSPECTION METAL CABLE LOCATOR", "link": "https://drive.google.com/uc?export=download&id=1tJWiTHLHiSgSBWSk9_CnwWintzPfDD9m"}, {"no": 4, "kode": "NKWK-CH-01", "judul": " CHECKLIST DAILY HSE FIELD INSPECTION Rev.2", "link": "https://drive.google.com/uc?export=download&id=1mcIlBnF72OMbUmHHd9eERPt0S_3DTXRe"}, {"no": 5, "kode": "NKWK-CH-02", "judul": " CHECKLIST DAILY PPE INSPECTION Rev.1", "link": "https://drive.google.com/uc?export=download&id=19N2uIoqo8Yy2lnnEKNXqc5j94rZdAucO"}, {"no": 6, "kode": "NKWK-D-CKLS-001", "judul": " Gas Detector Bump Test Log sheet", "link": "https://drive.google.com/uc?export=download&id=1eGmMkOazZ31p6xINvgFXxNuqmZWikYHU"}, {"no": 7, "kode": "NKWK-FM-01", "judul": " FORM DRUGS AND ALCOHOL Rev.1", "link": "https://drive.google.com/uc?export=download&id=1YmZiDm2AJ8Xtd2M42tfhOS6pY5ng3qaa"}, {"no": 8, "kode": "NKWK-FM-MVS", "judul": " CHECKLIST COMENTARY DRIVE", "link": "https://drive.google.com/uc?export=download&id=1WOu45R4odchXs0RaicBQ18qCm_H13Z3E"}, {"no": 9, "kode": "NKWK-FM-MVS-02", "judul": " CHECKLIST CABIN COACING", "link": "https://drive.google.com/uc?export=download&id=13fX9skT75hkdIEDKVtxIy5-VAaLT_FJ7"}, {"no": 10, "kode": "NKWK-FORM-GMP", "judul": " WK ROKAN GAS MAPPING SINTONG", "link": "https://drive.google.com/uc?export=download&id=1Sj1yoHlDRku5RADOFFRfAnGyjy9KQJ6o"}, {"no": 11, "kode": "NKWK-FORM-TSEP-01", "judul": " TSEP FORM NKWK", "link": "https://drive.google.com/uc?export=download&id=1pnJgaxlmTz1b798RA-l-a0WpqDs_wWzj"}, {"no": 12, "kode": "NKWK-INSP-EQP-001", "judul": " CHECKLIST INSPECTION APAR", "link": "https://drive.google.com/uc?export=download&id=1zJ5nLpgTBz6ZL-lgjxPF_TCLNDCzWL-u"}, {"no": 13, "kode": "NKWK-INSP-EQP-002", "judul": " CHECKLIST INSPECTION GERINDA TANGAN", "link": "https://drive.google.com/uc?export=download&id=1RjNvw6tSBBXdED-mKJCBDS-yusIy7fnm"}, {"no": 14, "kode": "NKWK-INSP-EQP-006", "judul": "CHECKLIST INSPECTION CUTTING TORCH", "link": "https://drive.google.com/uc?export=download&id=1-FJY9pRt9sg3BAaWDDQv_mj8JOFDFLWY"}]}}
+
+const CATEGORY_LABELS = {
+  "prosedur": "Prosedur",
+  "checklist external": "Checklist External",
+  "TKO-TKI": "TKO-TKI",
+  "STIKER": "Stiker",
+  "checklist internal": "Checklist Internal"
+};
+
+// Flatten all data into one array
+let ALL = [];
+for(const cat in DATA){
+  DATA[cat].items.forEach(item=>{
+    ALL.push({
+      kategori: cat,
+      no: item.no,
+      kode: (item.kode||"").toString().trim(),
+      judul: (item.judul||"").toString().trim(),
+      link: (item.link||"").toString().trim()
+    });
+  });
+}
+
+let activeCategory = "ALL";
+
+// Build filter buttons
+const filtersEl = document.getElementById('filters');
+const cats = ["ALL", ...Object.keys(DATA)];
+cats.forEach(cat=>{
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn' + (cat==="ALL" ? " active":"");
+  btn.textContent = cat==="ALL" ? `Semua (${ALL.length})` : `${CATEGORY_LABELS[cat]} (${DATA[cat].items.length})`;
+  btn.dataset.cat = cat;
+  btn.addEventListener('click', ()=>{
+    activeCategory = cat;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+  filtersEl.appendChild(btn);
+});
+
+document.getElementById('totalCount').textContent = ALL.length;
+
+function highlight(text, query){
+  if(!query) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const escapedQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const re = new RegExp('('+escapedQuery+')','ig');
+  return escaped.replace(re,'<mark>$1</mark>');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function normalize(s){
+  return (s||"").toString().toLowerCase().normalize('NFKD');
+}
+
+function search(query){
+  const q = normalize(query).trim();
+  let pool = activeCategory === "ALL" ? ALL : ALL.filter(x=>x.kategori===activeCategory);
+  if(!q) return pool;
+  return pool.filter(item=>{
+    return normalize(item.kode).includes(q) || normalize(item.judul).includes(q);
+  });
+}
+
+function render(){
+  const query = document.getElementById('searchInput').value;
+  const results = search(query);
+  const resultsEl = document.getElementById('results');
+  const statsEl = document.getElementById('stats');
+
+  statsEl.textContent = query
+    ? `Ditemukan ${results.length} dokumen untuk "${query}"`
+    : `Menampilkan ${results.length} dokumen`;
+
+  if(results.length === 0){
+    resultsEl.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>Tidak ada dokumen yang cocok.<br>Coba kata kunci lain.</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = results.map(item=>{
+    const linkBtn = item.link
+      ? `<a class="open-btn" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">📂 Buka Dokumen</a>`
+      : `<span class="no-link">Link belum tersedia</span>`;
+    return `
+    <div class="result-card">
+      <div class="result-top">
+        <span class="kode">${highlight(item.kode, query)}</span>
+        <span class="kategori-tag">${CATEGORY_LABELS[item.kategori]}</span>
+      </div>
+      <div class="judul">${highlight(item.judul, query)}</div>
+      <div class="card-bottom">${linkBtn}</div>
+    </div>
+  `;}).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
